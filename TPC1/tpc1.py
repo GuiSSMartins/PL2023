@@ -404,7 +404,9 @@ def graficos_dists(dist, dados):
     ax.set_title(dist.titulo)
     ax.set_xticks(x + width, classes)
     ax.legend(loc='upper left', ncols=3)
-    if isinstance(dist, DistribuicaoClasses): ax.set_ylim(0, 25)
+    if isinstance(dist, DistribuicaoClasses): 
+        if dist.var == "Idade":  ax.set_ylim(0, 25)
+        elif dist.var == "Colesterol":  ax.set_ylim(0, 10)
     elif isinstance(dist, DistribuicaoSimples): ax.set_ylim(0, 85)
 
     plt.show()
