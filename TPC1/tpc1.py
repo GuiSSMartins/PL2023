@@ -7,8 +7,12 @@ import matplotlib.pyplot as plt
 # Descarregue o ficheiro de dados: myheart.csv 
 # Crie um programa em Python, conjunto de funções, que responda às seguintes questões:
 
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 # 1)
 # Crie uma função que lê a informação do ficheiro para um modelo, previamente pensado em memória;
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 class Dados:
 
@@ -51,16 +55,13 @@ def read_myheart(): # Devolve lista dos dados das pessoas
     for linha in linhas:
         valores =  linha.split('\n')[0].split(',')
         idade = int(valores[0])
-        colesterol = int(valores[3])
+        colesterol = int(valores[3]) # foram incluídos os níveis de colesterol igual a zero
         temDoenca = int(valores[5])
         pessoa = Pessoa(idade, valores[1], colesterol, temDoenca)
         listaPessoas.append(pessoa)
         total += 1
 
         # Conjunto de verificações
-        # se tem ou não doença
-        if temDoenca == 1: total_doenca += 1
-        else: total_n_doenca += 1
         #idade
         if idade > max_idade: max_idade = idade
         elif idade < min_idade: min_idade = idade
@@ -74,12 +75,16 @@ def read_myheart(): # Devolve lista dos dados das pessoas
     dados = Dados(listaPessoas, min_idade, max_idade, min_colesterol, max_colesterol, total_doenca, total_n_doenca, total)
     return dados
 
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 # 2)
 # Pense num modelo para guardar uma distribuição;
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 # exemplo: <Nome Variavel> | Tem Doenca | Sem Doenca | Total
         #  (...)
-        #  Total | <Total Doença> | <Total Sem Doença>
+        #  Total | <Total Doença> | <Total Sem Doença> | <Total>
 
 class DistribuicaoClasses: # semelhante a um histograma (valores contínuos)
 
@@ -89,14 +94,20 @@ class DistribuicaoClasses: # semelhante a um histograma (valores contínuos)
         self.classes = {} # imitar hash-table (com as várias classes contínuas criadas)
 
     def adicionar_classe(self, l_inf, l_sup):
-        self.classes[l_inf] = Classe(l_inf, l_sup)
+        self.classes[(l_inf,l_sup)] = Classe(l_inf, l_sup)
 
-    def aumenta_doenca(self, l_inf):
-        self.classes[l_inf].aumenta_doenca()
+    def aumenta_doenca(self, l_inf, l_sup):
+        self.classes[(l_inf,l_sup)].aumenta_doenca()
     
-    def aumenta_n_doenca(self, l_inf):
-        self.classes[l_inf].aumenta_n_doenca()
+    def aumenta_n_doenca(self, l_inf, l_sup):
+        self.classes[(l_inf,l_sup)].aumenta_n_doenca()
 
+    def dividir_valores(self, total):
+        keys = self.classes.keys()
+        for key in keys:
+            classe = self.classes[key]
+            classe.dividir_valores(total)
+            self.classes[key] = classe
 
 class Classe: # para classes contínuas (idade - escalões etários)
 
@@ -113,6 +124,10 @@ class Classe: # para classes contínuas (idade - escalões etários)
     def aumenta_n_doenca(self):
         self.valor[1] += 1 # sem doença
         self.valor[2] += 1 # total - linhas
+
+    def dividir_valores(self, total):
+        for i in range(0,3):
+            self.valor[i] = self.valor[i] / total
 
 class DistribuicaoNormal: # sem classes (sexo-doença)
 
@@ -136,7 +151,18 @@ class DistribuicaoNormal: # sem classes (sexo-doença)
         total_linha += 1
         self.tabela[chave] = (valor_d, valor_n_d, total_linha)
 
+    def dividir_valores(self, total):
+        keys = self.tabela.keys()
+        for key in keys:
+            (v1, v2, v3) = self.tabela[key]
+            self.tabela[key] = (v1 / total, v2 / total, v3 / total)
+
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+# 3)
 # Crie uma função que calcula a distribuição da doença por sexo;
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 def dist_doenca_sexo(dados):
     dist = DistribuicaoNormal("-| Distribuição da doença por sexo |-","Sexo")
@@ -156,9 +182,16 @@ def dist_doenca_sexo(dados):
             else:
                 dist.aumenta_n_doenca("Feminino")
     
+    dist.dividir_valores(dados.total)
+
     return dist
 
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+# 4)
 # Crie uma função que calcula a distribuição da doença por escalões etários. Considere os seguintes escalões: [30-34], [35-39], [40-44], ...
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 def dist_doenca_etario(dados):
     lim_inf = dados.min_idade - (dados.min_idade % 5) # diferença = 5
@@ -182,13 +215,22 @@ def dist_doenca_etario(dados):
         #print(lim_inf)
 
         if pessoa.temDoenca == 1:    
-            dist.aumenta_doenca(lim_inf)
+            dist.aumenta_doenca(lim_inf, lim_inf + 4)
         else:
-            dist.aumenta_n_doenca(lim_inf)
+            dist.aumenta_n_doenca(lim_inf, lim_inf + 4)
     
+    # Calcular percentagem para cada classe
+    dist.dividir_valores(dados.total)
+
     return dist
 
-# Crie uma função que calcula a distribuição da doença por níveis de colesterol. Considere um nível igual a um intervalo de 10 unidades, comece no limite inferior e crie os níveis necessários até abranger o limite superior;
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+# 5)
+# Crie uma função que calcula a distribuição da doença por níveis de colesterol. 
+# Considere um nível igual a um intervalo de 10 unidades, comece no limite inferior e crie os níveis necessários até abranger o limite superior;
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 def dist_doenca_colesterol(dados):
     lim_inf = dados.min_colesterol - (dados.min_colesterol % 10) # diferença = 10
@@ -210,19 +252,27 @@ def dist_doenca_colesterol(dados):
         lim_inf = colesterol - ultimo_digito
         
         if pessoa.temDoenca == 1:    
-            dist.aumenta_doenca(lim_inf)
+            dist.aumenta_doenca(lim_inf, lim_inf+9)
         else:
-            dist.aumenta_n_doenca(lim_inf)
+            dist.aumenta_n_doenca(lim_inf, lim_inf+9)
     
+    dist.dividir_valores(dados.total)
+
     return dist
 
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+# 6)
 # Crie uma função que imprime na forma de uma tabela uma distribuição;
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 def imprimir_distribuicao(dist, dados): # sob forma de tabela
     print("")
     print(dist.titulo)
     print("")
     print(dist.var + " | Tem Doenca | Sem Doenca | Total")
+    print("----------------------------------------------")
 
     if isinstance(dist, DistribuicaoClasses):
         keys = dist.classes.keys()
@@ -236,9 +286,15 @@ def imprimir_distribuicao(dist, dados): # sob forma de tabela
             valor = dist.tabela[key]
             print(key + " | " + str(valor[0]) + " | " + str(valor[1]) + " | " + str(valor[2]))
 
-    print("Total | " + str(dados.total_doenca) + " | " + str(dados.total_n_doenca) + " | " + str(dados.total) + "\n")
+    print("Total | " + str(dados.total_doenca / dados.total) + " | " + str(dados.total_n_doenca / dados.total) + " | " + str(dados.total / dados.total) + "\n")
 
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+# 7)
 # Especifique um programa que ao executar apresenta as tabelas correspondentes às distribuições pedidas;
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+
 def main():
 
     print("\nTPC1 - Processamento de Linguagens - 2023")
@@ -291,52 +347,57 @@ def main():
         elif opcao == 0: 
             sair = 0
 
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+# 8)
 # Extra: explore o módulo matplotlib e crie gráficos para as suas distribuições.
+#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 def graficos_dists(dist, dados):
 
-    data = [] # array onde serão guardados os dados "internos"
-    colunas = ["Tem Doença", "Sem Doença", "Total"]
-    linhas = None
+    # https://matplotlib.org/stable/gallery/lines_bars_and_markers/barchart.html#sphx-glr-gallery-lines-bars-and-markers-barchart-py
+    classes = []
+    colunas = {"Tem Doença": (), "Sem Doença": (), "Total": ()}
 
     if isinstance(dist, DistribuicaoClasses):
-        linhas = []
         keys = dist.classes.keys()
         # temos de criar a string das chaves
-        for key in keys:
-            classe = dist.classes[key]
-            linhas.append("[" + str(key) + ", " + str(classe.l_sup) +"]")
-            data.append(classe.valor)
+        for (v1,v2) in keys:
+            classe = dist.classes[(v1,v2)]
+            classes.append("[" + str(v1) + ", " + str(v2) +"]")
+            valor = classe.valor
+            colunas["Tem Doença"] = colunas["Tem Doença"] +(valor[0],)
+            colunas["Sem Doença"] = colunas["Sem Doença"] +(valor[1],)
+            colunas["Total"] = colunas["Total"] +(valor[2],)
     elif isinstance(dist, DistribuicaoNormal):
-        linhas = list(dist.tabela.keys())
-        for key in linhas:
-            data.append(dist.tabela[key])
+        classes = list(dist.tabela.keys())
+        for key in classes:
+            # dist.tabela[key]
+            colunas["Tem Doença"] = colunas["Tem Doença"] +(dist.tabela[key][0],)
+            colunas["Sem Doença"] = colunas["Sem Doença"] +(dist.tabela[key][1],)
+            colunas["Total"] = colunas["Total"] +(dist.tabela[key][2],)
 
-    linhas.append("Total")
-    data.append([dados.total_doenca, dados.total_n_doenca, dados.total])
+    x = np.arange(len(classes))  # the label locations
+    width = 0.25  # the width of the bars
+    multiplier = 0
 
-    colors = plt.cm.BuPu(np.linspace(0, 0.5, len(linhas)))
-    n_rows = len(data)
-    index = np.arange(len(colunas)) + 0.3
-    bar_width = 0.4
-    y_offset = np.zeros(len(colunas))
+    fig, ax = plt.subplots(constrained_layout=True)
 
-    cell_text = []
-    for row in range(n_rows):
-        plt.bar(index, data[row], bar_width, bottom=y_offset, color=colors[row])
-        y_offset = y_offset + data[row]
-        cell_text.append(['%.f' % x for x in y_offset])
+    for attribute, measurement in colunas.items():
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        ax.bar_label(rects, padding=3)
+        multiplier += 1
 
-    plt.table(cellText=cell_text,
-                rowLabels=linhas,
-                rowColours=colors,
-                colLabels=colunas,
-                loc='bottom')
-    plt.subplots_adjust(left=0.4, bottom=0.4)
-    plt.xticks([])
-    plt.title(dist.titulo)
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Percentagem')
+    ax.set_title(dist.titulo)
+    ax.set_xticks(x + width, classes)
+    ax.legend(loc='upper left', ncols=3)
+    ax.set_ylim(0, 1)
+
     plt.show()
-
 
 if __name__ == '__main__':
     main()
