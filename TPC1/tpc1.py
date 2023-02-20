@@ -129,7 +129,7 @@ class Classe: # para classes contínuas (idade - escalões etários)
         for i in range(0,3):
             self.valor[i] = self.valor[i] / total
 
-class DistribuicaoNormal: # sem classes (sexo-doença)
+class DistribuicaoSimples: # sem classes (sexo-doença)
 
     def __init__(self, titulo, var):
         self.titulo = titulo
@@ -165,7 +165,7 @@ class DistribuicaoNormal: # sem classes (sexo-doença)
 #------------------------------------------------------------------------------------
 
 def dist_doenca_sexo(dados):
-    dist = DistribuicaoNormal("-| Distribuição da doença por sexo |-","Sexo")
+    dist = DistribuicaoSimples("-| Distribuição da doença por sexo |-","Sexo")
     dist.adicionar_chave("Masculino")
     dist.adicionar_chave("Feminino")
 
@@ -280,7 +280,7 @@ def imprimir_distribuicao(dist, dados): # sob forma de tabela
             classe = dist.classes[key]
             print("[" + str(classe.l_inf) + ", " + str(classe.l_sup) + "] | " + str(classe.valor[0]) + " | " + str(classe.valor[1]) + " | " + str(classe.valor[2]))
 
-    elif isinstance(dist, DistribuicaoNormal):
+    elif isinstance(dist, DistribuicaoSimples):
         keys = dist.tabela.keys()
         for key in keys:
             valor = dist.tabela[key]
@@ -370,7 +370,7 @@ def graficos_dists(dist, dados):
             colunas["Tem Doença"] = colunas["Tem Doença"] +(valor[0],)
             colunas["Sem Doença"] = colunas["Sem Doença"] +(valor[1],)
             colunas["Total"] = colunas["Total"] +(valor[2],)
-    elif isinstance(dist, DistribuicaoNormal):
+    elif isinstance(dist, DistribuicaoSimples):
         classes = list(dist.tabela.keys())
         for key in classes:
             # dist.tabela[key]
@@ -395,7 +395,8 @@ def graficos_dists(dist, dados):
     ax.set_title(dist.titulo)
     ax.set_xticks(x + width, classes)
     ax.legend(loc='upper left', ncols=3)
-    ax.set_ylim(0, 1)
+    if isinstance(dist, DistribuicaoClasses): ax.set_ylim(0, 0.25)
+    elif isinstance(dist, DistribuicaoSimples): ax.set_ylim(0, 0.85)
 
     plt.show()
 
