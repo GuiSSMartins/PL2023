@@ -16,9 +16,8 @@ import matplotlib.pyplot as plt
 
 class Dados:
 
-    def __init__(self, pessoas, min_idade, max_idade, min_colesterol, max_colesterol, total_doenca, total_n_doenca, total):
+    def __init__(self, pessoas, max_idade, min_colesterol, max_colesterol, total_doenca, total_n_doenca, total):
         self.pessoas = pessoas # lista das pessoas, com os seus respetivos dados
-        self.min_idade = min_idade
         self.max_idade = max_idade
         self.min_colesterol = min_colesterol
         self.max_colesterol = max_colesterol
@@ -54,25 +53,30 @@ def read_myheart(): # Devolve lista dos dados das pessoas
     linhas = f.readlines()
     for linha in linhas:
         valores =  linha.split('\n')[0].split(',')
-        idade = int(valores[0])
-        colesterol = int(valores[3]) # foram incluídos os níveis de colesterol igual a zero
-        temDoenca = int(valores[5])
-        pessoa = Pessoa(idade, valores[1], colesterol, temDoenca)
-        listaPessoas.append(pessoa)
-        total += 1
 
-        # Conjunto de verificações
-        #idade
-        if idade > max_idade: max_idade = idade
-        elif idade < min_idade: min_idade = idade
-        #colesterol
-        if colesterol < min_colesterol: min_colesterol = colesterol
-        elif colesterol > max_colesterol: max_colesterol = colesterol
+        colesterol = int(valores[3])
+        # eliminar valores que não fazem sentido (colesterol = 0)
+        if colesterol > 0: 
+            idade = int(valores[0])
+            temDoenca = int(valores[5])
+            pessoa = Pessoa(idade, valores[1], colesterol, temDoenca)
+            listaPessoas.append(pessoa)
+            total += 1
+
+            # Conjunto de verificações
+            #idade
+            if idade > max_idade: max_idade = idade
+            #colesterol
+            if colesterol < min_colesterol: min_colesterol = colesterol
+            elif colesterol > max_colesterol: max_colesterol = colesterol
+            # doenca
+            if temDoenca == 1: total_doenca += 1
+            else: total_n_doenca += 1
 
     # Fechar ficheiro
     f.close()
 
-    dados = Dados(listaPessoas, min_idade, max_idade, min_colesterol, max_colesterol, total_doenca, total_n_doenca, total)
+    dados = Dados(listaPessoas, max_idade, min_colesterol, max_colesterol, total_doenca, total_n_doenca, total)
     return dados
 
 #------------------------------------------------------------------------------------
@@ -92,21 +96,28 @@ class DistribuicaoClasses: # semelhante a um histograma (valores contínuos)
         self.titulo = titulo
         self.var = var # variável que se quer relacionar com a doença
         self.classes = {} # imitar hash-table (com as várias classes contínuas criadas)
+        self.total = 0
+        self.total_doenca = 0
+        self.total_n_doenca = 0
 
     def adicionar_classe(self, l_inf, l_sup):
         self.classes[(l_inf,l_sup)] = Classe(l_inf, l_sup)
 
     def aumenta_doenca(self, l_inf, l_sup):
         self.classes[(l_inf,l_sup)].aumenta_doenca()
+        self.total_doenca += 1
+        self.total += 1
     
     def aumenta_n_doenca(self, l_inf, l_sup):
         self.classes[(l_inf,l_sup)].aumenta_n_doenca()
+        self.total_n_doenca += 1
+        self.total += 1
 
-    def dividir_valores(self, total):
+    def dividir_valores(self):
         keys = self.classes.keys()
         for key in keys:
             classe = self.classes[key]
-            classe.dividir_valores(total)
+            classe.dividir_valores(self.total)
             self.classes[key] = classe
 
 class Classe: # para classes contínuas (idade - escalões etários)
@@ -127,7 +138,7 @@ class Classe: # para classes contínuas (idade - escalões etários)
 
     def dividir_valores(self, total):
         for i in range(0,3):
-            self.valor[i] = self.valor[i] / total
+            self.valor[i] = self.valor[i] * 100 / total
 
 class DistribuicaoSimples: # sem classes (sexo-doença)
 
@@ -155,7 +166,7 @@ class DistribuicaoSimples: # sem classes (sexo-doença)
         keys = self.tabela.keys()
         for key in keys:
             (v1, v2, v3) = self.tabela[key]
-            self.tabela[key] = (v1 / total, v2 / total, v3 / total)
+            self.tabela[key] = (v1 * 100 / total, v2 * 100 / total, v3 * 100 / total)
 
 #------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------
@@ -165,7 +176,7 @@ class DistribuicaoSimples: # sem classes (sexo-doença)
 #------------------------------------------------------------------------------------
 
 def dist_doenca_sexo(dados):
-    dist = DistribuicaoSimples("-| Distribuição da doença por sexo |-","Sexo")
+    dist = DistribuicaoSimples("-| Distribuição da doença por sexo (em percentagem, %) |-","Sexo")
     dist.adicionar_chave("Masculino")
     dist.adicionar_chave("Feminino")
 
@@ -194,10 +205,11 @@ def dist_doenca_sexo(dados):
 #------------------------------------------------------------------------------------
 
 def dist_doenca_etario(dados):
-    lim_inf = dados.min_idade - (dados.min_idade % 5) # diferença = 5
+    # Tal como pedido no enunciado, só serão aceites idades a partir dos 30 anos
+    lim_inf = 30 # diferença = 5
     max_idade = dados.max_idade
 
-    dist = DistribuicaoClasses("-| Distribuição da doença por escalões etários |-", "Idade")
+    dist = DistribuicaoClasses("-| Distribuição da doença por escalões etários (em percentagem, %) |-", "Idade")
     
     # Criar as várias classes (mas, sem preencher com os seus valores)
     while lim_inf <= max_idade :
@@ -208,19 +220,17 @@ def dist_doenca_etario(dados):
     pessoas = dados.pessoas
     for pessoa in pessoas:
         idade = pessoa.idade
-        ultimo_digito = idade % 5
-        lim_inf = idade - ultimo_digito
-        
-        #print(idade)
-        #print(lim_inf)
+        if idade >= 30: # Tal como pedido no enunciado, só serão aceites idades a partir dos 30 anos
+            ultimo_digito = idade % 5
+            lim_inf = idade - ultimo_digito
 
-        if pessoa.temDoenca == 1:    
-            dist.aumenta_doenca(lim_inf, lim_inf + 4)
-        else:
-            dist.aumenta_n_doenca(lim_inf, lim_inf + 4)
+            if pessoa.temDoenca == 1:    
+                dist.aumenta_doenca(lim_inf, lim_inf + 4)
+            else:
+                dist.aumenta_n_doenca(lim_inf, lim_inf + 4)
     
     # Calcular percentagem para cada classe
-    dist.dividir_valores(dados.total)
+    dist.dividir_valores()
 
     return dist
 
@@ -235,9 +245,8 @@ def dist_doenca_etario(dados):
 def dist_doenca_colesterol(dados):
     lim_inf = dados.min_colesterol - (dados.min_colesterol % 10) # diferença = 10
     max_colesterol = dados.max_colesterol
-    # print(max_colesterol)
 
-    dist = DistribuicaoClasses("-| Distribuição da doença por níveis de colesterol |-", "Colesterol")
+    dist = DistribuicaoClasses("-| Distribuição da doença por níveis de colesterol (em percentagem, %) |-", "Colesterol")
     
     # Criar as várias classes (mas, sem preencher com os seus valores)
     while lim_inf <= max_colesterol :
@@ -256,7 +265,7 @@ def dist_doenca_colesterol(dados):
         else:
             dist.aumenta_n_doenca(lim_inf, lim_inf+9)
     
-    dist.dividir_valores(dados.total)
+    dist.dividir_valores()
 
     return dist
 
@@ -278,15 +287,15 @@ def imprimir_distribuicao(dist, dados): # sob forma de tabela
         keys = dist.classes.keys()
         for key in keys:
             classe = dist.classes[key]
-            print("[" + str(classe.l_inf) + ", " + str(classe.l_sup) + "] | " + str(classe.valor[0]) + " | " + str(classe.valor[1]) + " | " + str(classe.valor[2]))
+            print("[" + str(classe.l_inf) + ", " + str(classe.l_sup) + "] | " + str(classe.valor[0]) + " % | " + str(classe.valor[1]) + " % | " + str(classe.valor[2]) + " %")
+        print("Total | " + str(dist.total_doenca * 100 / dist.total) + " % | " + str(dist.total_n_doenca * 100 / dist.total) + " % | " + str(dist.total * 100 / dist.total) + " %\n")
 
     elif isinstance(dist, DistribuicaoSimples):
         keys = dist.tabela.keys()
         for key in keys:
             valor = dist.tabela[key]
-            print(key + " | " + str(valor[0]) + " | " + str(valor[1]) + " | " + str(valor[2]))
-
-    print("Total | " + str(dados.total_doenca / dados.total) + " | " + str(dados.total_n_doenca / dados.total) + " | " + str(dados.total / dados.total) + "\n")
+            print(key + " | " + str(valor[0]) + " % | " + str(valor[1]) + " % | " + str(valor[2]) + " %")
+        print("Total | " + str(dados.total_doenca * 100 / dados.total) + " % | " + str(dados.total_n_doenca * 100 / dados.total) + " % | " + str(dados.total * 100 / dados.total) + " %\n")
 
 #------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------
@@ -391,12 +400,12 @@ def graficos_dists(dist, dados):
         multiplier += 1
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Percentagem')
+    ax.set_ylabel('Percentagem (%)')
     ax.set_title(dist.titulo)
     ax.set_xticks(x + width, classes)
     ax.legend(loc='upper left', ncols=3)
-    if isinstance(dist, DistribuicaoClasses): ax.set_ylim(0, 0.25)
-    elif isinstance(dist, DistribuicaoSimples): ax.set_ylim(0, 0.85)
+    if isinstance(dist, DistribuicaoClasses): ax.set_ylim(0, 25)
+    elif isinstance(dist, DistribuicaoSimples): ax.set_ylim(0, 85)
 
     plt.show()
 
