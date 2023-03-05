@@ -1,4 +1,4 @@
-from dados import Dados, parsing
+from dados import Dados
 
 import json
 
@@ -12,4 +12,4 @@ def d(dados):
     jsonFile.write(jsonString)
     jsonFile.close()
 
-    print("\nCriação do ficheiro 'processos20.json' concluído!\n")
+    print("\n ------------------------------ Criação do ficheiro 'processos20.json' concluído! -------------------------------------")

@@ -20,21 +20,20 @@ from d_tpc3 import d
 from dados import parsing
 
 def main():
-    
-    print("\nTPC3 - Processamento de Linguagens - 2023")
-    print("Guilherme Martins - a92847 - LEI")
 
     # Parsing dos dados
     dados = parsing()
 
-
     perguntar = 1
     while perguntar:
+        print("\n\nTPC3 - Processamento de Linguagens - 2023")
+        print("Guilherme Martins - a92847 - LEI")
+
         print("\n-| Exercícios |-\n")
         print("1) - Exercício a): Calcula a frequência de processos por ano (primeiro elemento da data)")
         print("2) - Exercício b): Calcula a frequência de nomes próprios (o primeiro em cada nome) e apelidos (o ultimo em cada nome) por séculos e apresenta os 5 mais usados")
         print("3) - Exercício c): Calcula a frequência dos vários tipos de relação: irmão, sobrinho, etc.")
-        print("4) - Exercício d): onverta os 20 primeiros registos num novo ficheiro de output mas em formato **Json**")
+        print("4) - Exercício d): Converta os 20 primeiros registos num novo ficheiro de output mas em formato **Json**")
         print("0) - SAIR\n")
 
         opcao = int(input("Escreva aqui apenas o número da opção desejada: "))
