@@ -13,8 +13,6 @@
 # > d) Converta os 20 primeiros registos num novo ficheiro de output mas em formato **Json**.
 
 
-
-
 from a_tpc3 import a
 from b_tpc3 import b
 from c_tpc3 import c
@@ -22,7 +20,6 @@ from d_tpc3 import d
 from dados import parsing
 
 def main():
-
     
     print("\nTPC3 - Processamento de Linguagens - 2023")
     print("Guilherme Martins - a92847 - LEI")
@@ -48,7 +45,7 @@ def main():
         elif opcao == 0: perguntar = 0
         else:
             print("\n !!! Opção errada !!!\n")
-
+    print("\nFIM do programa\n")
 
 if __name__ == '__main__':
     main()

@@ -3,7 +3,7 @@ from dados import Dados, parsing
 import json
 
 # > d) Converta os 20 primeiros registos num novo ficheiro de output mas em formato **Json**.
-# guardar os registos sob a forma de um dicionário
+# !!! guardar os registos sob a forma de um dicionário !!!
 def d(dados):
     # https://pythonexamples.org/python-write-json-to-file/
     registos20 = dados.registos20 # dicionário
