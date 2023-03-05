@@ -66,7 +66,7 @@ def parsing():
     linhas = f.readlines()
 
     # Expressão Regular - Pasta | Data | Nome | Pai | Mãe | Observações
-    er = re.compile(r'(?P<pasta>\d+)::(?P<ano>\d{4})-(?P<mes>\d{2})-(?P<dia>\d{2})::(?P<nome>(\w+|\s+|,|\.|\(|\))+)::(?P<pai>(\w+|\s+|,|\.|\(|\))*)::(?P<mae>(\w+|\s+|,|\.|\(|\))*)::(?P<observacoes>(.*))') # (?P<observacoes>(.*))::
+    er = re.compile(r'(?P<pasta>\d+)::(?P<ano>\d{4})-(?P<mes>\d{2})-(?P<dia>\d{2})::(?P<nome>(\w+|\s+|,|\.|\(|\))+)::(?P<pai>(\w+|\s+|,|\.|\(|\))*)::(?P<mae>(\w+|\s+|,|\.|\(|\))*)::(?P<observacoes>(\w+|\s+|,|\.|\(|\))*)')
 
     i= 1
 
