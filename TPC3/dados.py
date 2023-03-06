@@ -52,9 +52,9 @@ class Dados: # Todos os dados obtidos a partir do ficheiro "parsing.txt"
         if int(ano) > self.lim_sup_ano_proc: self.lim_sup_ano_proc = int(ano)
     
     # exercício d)
-    def adicionarRegisto20(self, linha_registo):
+    def adicionarRegisto20(self, dict_registo):
         self.n_registos += 1
-        self.registos20[self.n_registos] = linha_registo
+        self.registos20[self.n_registos] = dict_registo
 
 
 # CUIDADO: podem haves 2 ou mais processos com a mesma pasta
@@ -78,7 +78,7 @@ def parsing():
 
             # (exercicio d) ) Verificar se é para adicionar aos primeiros 20 registos
             if dados.n_registos < 20:
-                dados.adicionarRegisto20(linha)
+                dados.adicionarRegisto20(registo)
 
             # (exercicio a) ) Frequência dos processos por ano
             ano = registo['ano']
