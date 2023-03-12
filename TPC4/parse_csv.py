@@ -15,32 +15,41 @@ def csv_json(filename):
     numero_vezes_campos = {} # dicionário (campo -> lista número [lim_inf, lim_sup]) 
     funcoes_campos = {} # dicionário (campo -> função)
     campos = linha1.split(',')
+    antigo_nome = None
     for campo in campos:
         if not (len(campo) == 0 or campo == "\n"): # Ignorar campo quando o que está dentro dos () é válido
             # Campo aceite - temos de saber quantas colunas cada campo possui
             # Verificar extensão utilizada
-            # Listas
-            match1 = re.match(r'^(\w+){(\d)}\n?$', campo) # grupo de captura do número dentro do {}
+            # Listas (Exemplo: Notas{5})
+            match1 = re.match(r'^(\w+)[{](\d)[}]\n?$', campo) # grupo de captura do número dentro do {}
             if match1:
                 nomes_campos.append(match1[1])
                 numero_vezes_campos[match1[1]] = [int(match1[2])]
                 # não se adiciona função a esse campo
             else:
                 # Lista com intervalo de tamanhos
-                match2 = re.match(r'^(\w+){(\d),(\d)}\n?$', campo)
+                # Exemplo: Notas{3
+                match2 = re.match(r'^(\w+)[{](\d)$', campo)
                 if match2:
-                    nomes_campos.append(match1[1])
-                    numero_vezes_campos[match1[1]] = [int(match1[2]), int(match1[3])]
+                    nomes_campos.append(match2[1])
+                    numero_vezes_campos[match2[1]] = [int(match2[2])]
+                    antigo_nome = match2[1]
                 else:
-                    # Funções de agregação
-                    match3 = re.match(r'^(\w+){(\d),(\d)}::(\w+)\n?$', campo)
+                    # Exemplo: 5}
+                    match3 = re.match(r'^(\d)[}]\n?$', campo)
                     if match3:
-                        nomes_campos.append(match1[1])
-                        numero_vezes_campos[match1[1]] = [int(match1[2]), int(match1[3])]
-                        funcoes_campos[match1[1]] = [int(match1[4])]
-                    # Se não tiver nenhuma extensão, simplesmente adiciona-se ao dicionário
-                    else:
-                        nomes_campos.append(campo.split('\n')[0])
+                        numero_vezes_campos[antigo_nome].append(int(match3[1]))
+                        antigo_nome = None
+                    else:                    
+                        # Funções de agregação
+                        match4 = re.match(r'^(\d)[}]\:\:(\w+)\n?$', campo)
+                        if match4:
+                            numero_vezes_campos[antigo_nome].append(int(match4[1]))
+                            funcoes_campos[antigo_nome] = match4[2]
+                            antigo_nome = None
+                        else:
+                            # Se não tiver nenhuma extensão, simplesmente adiciona-se ao dicionário
+                            nomes_campos.append(campo.split('\n')[0])
 
 
     list = [] # guardam-se os vários dicionários
@@ -52,10 +61,11 @@ def csv_json(filename):
         i = 0
         index_nome = 0
         valores = linha.split(',')
-        length = len(linha)
+        length = len(valores)
         dict = {} # dicionário onde serão guardados os vários dados da linha para o json
         while i < length : # enquanto os vários valores não forem todos analisados
             nome = nomes_campos[index_nome]
+            # print(nome)
             index_nome += 1
             valores_campo = []
             lim_inf = 0
@@ -76,18 +86,20 @@ def csv_json(filename):
 
             # valores obrigatórios da lista
             for n in range(0, lim_inf):
-                # valores[i] = valores[i].split('\n')[0]
+                valores[i] = valores[i].split('\n')[0]
+                # print(valores[i])
                 if valores[i].isnumeric(): valores_campo.append(int(valores[i]))
                 else: valores_campo.append(valores[i])
                 i += 1
 
             # pode acontecer que a linha tenha valores não obrigatórios
-            for n in range(lim_inf, lim_sup+1):
-                # valores[i] = valores[i].split('\n')[0]
-                if len(valores[i]) > 0:
-                    if valores[i].isnumeric(): valores_campo.append(int(valores[i]))
-                    else: valores_campo.append(valores[i])
-                i += 1
+            if lim_inf != lim_sup:
+                for n in range(lim_inf, lim_sup):
+                    valores[i] = valores[i].split('\n')[0]
+                    if len(valores[i]) > 0:
+                        if valores[i].isnumeric(): valores_campo.append(int(valores[i]))
+                        else: valores_campo.append(valores[i])
+                    i += 1
 
             # aplicar função (se existe)
             if nome in funcoes_campos:
@@ -106,13 +118,17 @@ def csv_json(filename):
                     media /= n_total
                     dict[nome] = media
 
-                # se não tiver função, adicionamos todos os valores (em forma de lista) ao dicionário
-                else: dict[nome] = valores_campo
+            # se não tiver função, adicionamos todos os valores (em forma de lista) ao dicionário
+            else: 
+                if len(valores_campo) > 1:
+                    dict[nome] = valores_campo
+                else:
+                    dict[nome] = valores_campo[0]
         
         list.append(dict)
 
 
-    create_json(dict, filename)
+    create_json(list, filename)
 
 
 # Converter um dicionário num ficheiro JSON (https://pythonexamples.org/python-write-json-to-file/)
@@ -120,9 +136,8 @@ def create_json(list, filecsv):
     filename = filecsv.split('.')[0]
     directory = "resultados_json/" + filename + ".json"
     jsonFile = open(directory, "w")
-    for l in list:
-        jsonString = json.dump(list)
-        jsonFile.write(jsonString)
+    jsonString = json.dumps(list, ensure_ascii = False)
+    jsonFile.write(jsonString)
     jsonFile.close()
 
 
