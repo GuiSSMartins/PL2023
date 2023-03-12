@@ -18,7 +18,8 @@ def main():
         print("3) Listas com um intervalo de tamanhos - alunos3.csv")
         print("4) Funções de agregação - alunos4.csv")
         print("5) Funções de agregação - alunos5.csv")
-        print("6) Qualquer CSV (tem de escrever o nome do ficheiro CSV)")
+        print("6) CSV feito por mim (contém todas as extensões) - alunosMe.csv")
+        print("7) Qualquer CSV (tem de escrever o nome do ficheiro CSV)")
         print("0) - SAIR\n")
 
         opcao = int(input("Escreva aqui o número da opção desejada: "))
@@ -28,11 +29,12 @@ def main():
         elif opcao == 3: csv_json("alunos3.csv")
         elif opcao == 4: csv_json("alunos4.csv")
         elif opcao == 5: csv_json("alunos5.csv")
-        elif opcao == 6:
+        elif opcao == 6: csv_json("alunosMe.csv")
+        elif opcao == 7:
             invalido = 1
             while invalido:
                 print("\n(É necessário escrever .csv no final & tem de garantir que está dentro da pasta 'csv_testes')")
-                filename = input("Escreva o nome do ficheiro (incluindo .csv no final):")
+                filename = input("Escreva o nome do ficheiro (incluindo .csv no final): ")
                 directory = "csv_testes/" + filename
                 if exists(directory):
                     invalido = 0

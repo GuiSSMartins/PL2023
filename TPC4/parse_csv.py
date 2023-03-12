@@ -65,7 +65,6 @@ def csv_json(filename):
         dict = {} # dicionário onde serão guardados os vários dados da linha para o json
         while i < length : # enquanto os vários valores não forem todos analisados
             nome = nomes_campos[index_nome]
-            # print(nome)
             index_nome += 1
             valores_campo = []
             lim_inf = 0
@@ -87,7 +86,6 @@ def csv_json(filename):
             # valores obrigatórios da lista
             for n in range(0, lim_inf):
                 valores[i] = valores[i].split('\n')[0]
-                # print(valores[i])
                 if valores[i].isnumeric(): valores_campo.append(int(valores[i]))
                 else: valores_campo.append(valores[i])
                 i += 1
