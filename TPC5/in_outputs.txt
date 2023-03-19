@@ -1,0 +1,38 @@
+guilherme@guilherme-HP-Pavilion-Gaming-Laptop-15-ec2xxx:~/Documentos/Processamento de Linguagens/PL2023/TPC5$ /bin/python3 "/home/guilherme/Documentos/Processamento de Linguagens/PL2023/TPC5/main.py"
+
+TPC5 - Processamento de Linguagens - 2023
+Guilherme Martins - a92847 - LEI
+
+ATENÇÃO: O programa só funciona para strings fornecidas válidas!
+
+-| CABINE TELEFÓNICA |-
+
+maq: Opções possíveis para escrever (ignorar os ;):
+-> LEVANTAR; POUSAR; MOEDA $c, $e. (tem de ter um ponto no final);
+-> T=<o número deve ter 9 dígitos excepto se for iniciado por '0'>; ABORTAR
+LEVANTAR
+maq: "Introduza moedas."
+MOEDA 10c, 30c, 50c, 2e.
+maq: "30c - moeda inválida; saldo = 2e60c"
+T=601181818
+maq: "Esse número não é permitido neste telefone. Queira discar novo número!"
+maq: "saldo: 2e60c"
+maq: "Não se esqueça de POUSAR o auscultador, caso não deseje realizar mais chamadas!"
+T=253604470
+maq. "Chamada nacional efetuada com sucesso."
+maq: "saldo: 2e35c"
+maq: "Não se esqueça de POUSAR o auscultador, caso não deseje realizar mais chamadas!"
+POUSA
+!!! Opção errada !!!
+maq: "!!! Opção errada !!! (Por favor escreva uma das seguintes opções: )
+-> LEVANTAR; POUSAR; MOEDA $c, $e. (tem de ter um ponto no final);
+-> T=<o número deve ter 9 dígitos excepto se for iniciado por '00'>; ABORTAR"
+POUSAR
+maq: "saldo: 2e35c; Volte sempre!"
+
+FIM do programa
+
+
+
+---------------------------------------------------
+---------------------------------------------------
