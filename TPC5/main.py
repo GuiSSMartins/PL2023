@@ -1,42 +1,10 @@
 import re
-
-
-# variáveis globais
-levantou = 0 # inicialmente, nada foi levantado
-
-    
-
-# LEVANTAR
-def levantar(): # marca início de interação
-    global levantou 
-    levantou = 1
-
-# POUSAR
-def pousar():
-
-# MOEDA $c, $e  ||   MOEDA <lista de valores>
-def moeda(string_moeda):
-    preco_total = 0.0
-
-    # EXEMPLO: MOEDA 10c, 30c, 50c, 2e. (CUIDADO com o ponto final)
-    pos_moeda = string_moeda[6:]
-    moedas = pos_moeda.split('.')[0].split(',')
-
-    # Moedas válidas: 1 cêntimo (1c), 2 cêntimos (2c), 5 cêntimos (5c), 10 cêntimos (10c), 20 cêntimos (20c)
-    # 50 cêntimos (50c), 1 euro (1e), 2 euros (2e)
-
-    for md in moedas:
-        if 'c' in md:
-
-        elif 'e' in md: 
-
-    m = re.match(r'', string_moeda)
-
-
-def t():
+import Maquina
 
 
 def main():
+
+    maquina = Maquina() # Máquina de Estados
 
     print("\n\nTPC5 - Processamento de Linguagens - 2023")
     print("Guilherme Martins - a92847 - LEI\n")
@@ -44,23 +12,37 @@ def main():
     print("ATENÇÃO: O programa só funciona para strings fornecidas válidas!\n")
 
     print("-| CABINE TELEFÓNICA |-\n")
-    print("Opções possíveis para escrever (ignorar os ;):")
-    print("LEVANTAR; POUSAR; MOEDA $c, $e. (tem de ter um ponto no final);")
+    print("maq: Opções possíveis para escrever (ignorar os ;):")
+    print("-> LEVANTAR; POUSAR; MOEDA $c, $e. (tem de ter um ponto no final);")
+    print("-> T=<o número deve ter 9 dígitos excepto se for iniciado por '0'>; ABORTAR")
 
     perguntar = 1
     while perguntar:
         opcao = input()
-
+        # A vanatgem destes matches é que o início da expressão é que tem de estar correto
+        # pode ter erros a seguir, mas são ignorados!
         m1 = re.match(r'^LEVANTAR', opcao)
-        m2 = 
-        m3 = re.match(r'^MOEDA', opcao)
+        m2 = re.match(r'^POUSAR', opcao)
+        m3 = re.match(r'^MOEDA(\s+[ec][,\.])+', opcao) # ver estrutura 
+        m4 = re.match(r'T=((00)?\d{9,})', opcao) # o número deve ter 9 dígitos excepto se for iniciado por "00"
+        m5 = re.match(r'^ABORTAR', opcao)
 
-        if m1: # LEVANTAR
-            if levantou: print("\n!!! Não pode levantar  !!!\n")
-            else: levantar()
+        if m1: maquina.levantar()
+        elif m2: 
+            maquina.pousar()
+            perguntar = 0
+        elif m3: 
+            maquina.adicionarMoedas(opcao)
+        elif m4:
+            maquina.t(m4[1])
+        elif m5:
+            maquina.abortar()
+            perguntar = 0
         else:
             print("\n !!! Opção errada !!!")
-            print("(Por favor escreva uma das seguintes opções: )")
+            print("maq: (Por favor escreva uma das seguintes opções: )")
+            print("-> LEVANTAR; POUSAR; MOEDA $c, $e. (tem de ter um ponto no final);")
+            print("-> T=<o número deve ter 9 dígitos excepto se for iniciado por '0'>; ABORTAR")
     print("\nFIM do programa\n")
 
 if __name__ == '__main__':
