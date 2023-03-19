@@ -1,10 +1,7 @@
 # Deterministic Finite Automata (DFA)
-
 # Webgrafia: https://www.askpython.com/python-modules/state-machines-python#:~:text=A%20state%20machine%20is%20a,logic%20circuits%20and%20computer%20programs.
 
-
 class Maquina:
-
     # Automata = (Q, F, δ, q0, Σ)
 
     # Q = A set of all states.
@@ -33,11 +30,11 @@ class Maquina:
             self.q0 = 'POUSOU'
             # Indicar montante a devolver
             print()
-        else: print("\n!!! Não pode levantar  !!!\n")
+        else: print('maq: "!!! Não pode levantar !!!"')
 
     # MOEDA $c, $e  ||   MOEDA <lista de valores>
     def adicionarMoedas(self, string_moeda):
-        if self.q0 == '':
+        if self.q0 == 'LEVANTOU':
 
             # EXEMPLO: MOEDA 10c, 30c, 50c, 2e. (CUIDADO com o ponto final)
             pos_moeda = string_moeda[6:]
@@ -57,9 +54,7 @@ class Maquina:
             self.custo_total += valor
             self.lista_moedas.append(valor)
 
-        else: print("")
-
-    def adicionarCustoTelefonema(self, valor):
+        else: print('maq: "Não pode adicionar moedas se ainda não LEVANTOU os auscultadores!"')
 
 
 
@@ -76,13 +71,36 @@ class Maquina:
         if self.q0 == 'LEVANTOU':
             # Processar número de telefone
             if string_numero[0:3] == "601" or string_numero[0:3] == "641":
-                print()
+                print('maq: "Chamada _bloqueada_"')
+            elif string_numero[0:2] == "00":
+                if self.saldo >= 1.5: 
+                    self.saldo -= 1.5
+                    print('maq. "Chamada internacional efetuada com sucesso."')
+                else: 
+                    print('maq: "Saldo INSUFICIENTE! Por favor, adicione mais moedas"')
+                    print('maq: "Para chamadas internacionais, tem de ter um saldo igual ou superior a 1,5 euros!"')
+            elif string_numero[0] == '2':
+
             
+            elif string_numero[0:3] == "800":
+                print('maq. "Chamada verde efetuada com sucesso."')
+            elif string_numero[0:3] == "808":
+                if self.saldo >= 0.10:
+                    self.saldo -= 0.10
+                    print('maq. "Chamada azul efetuada com sucesso."')
+                else:
+                    print('maq: "Saldo INSUFICIENTE! Por favor, adicione mais moedas"')
+                    print('maq: "Para chamadas azuis, tem de ter um saldo igual ou superior a 10 cêntimos!"')
             else:
                 print('maq: "Esse número não é permitido neste telefone. Queira discar novo número!"')
+            # Adicionar custo da chamada
             # self.saldo -= valor
         else:
             print('maq: "Por favor, LEVANTE o auscultador antes de telefonar! "')
+        centimos = (self.saldo % 1) * 100
+        euros = self.saldo - centimos
+        print('maq: "SALDO atual: ' + + str(euros) + 'e' + '{:.2f}'.format(centimos) + 'c"')
+        print('maq: "Não se esqueça de POUSAR o auscultador, caso não deseje fazer mais chamadas!"')
         
 
     # devolver as moedas
@@ -91,6 +109,6 @@ class Maquina:
             self.q0 = 'ABORTOU'
             centimos = (self.saldo % 1) * 100
             euros = self.saldo - centimos
-            print('maq: "Operação abortada! troco: " + str(euros) + "e" + "{:.2f}".format(centimos) + "c; Volte sempre!"')
+            print('maq: "Operação abortada! troco: "' + str(euros) + 'e' + '{:.2f}'.format(centimos) + 'c; Volte sempre!"')
         else: 
             print('maq: "Não pode abortar!"')
