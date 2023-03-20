@@ -36,3 +36,22 @@ FIM do programa
 
 ---------------------------------------------------
 ---------------------------------------------------
+
+
+guilherme@guilherme-HP-Pavilion-Gaming-Laptop-15-ec2xxx:~/Documentos/Processamento de Linguagens/PL2023/TPC5$ /bin/python3 "/home/guilherme/Documentos/Processamento de Linguagens/PL2023/TPC5/main.py"
+
+TPC5 - Processamento de Linguagens - 2023
+Guilherme Martins - a92847 - LEI
+
+ATENÇÃO: O programa só funciona para strings fornecidas válidas!
+
+-| CABINE TELEFÓNICA |-
+
+maq: Opções possíveis para escrever (ignorar os ;):
+-> LEVANTAR; POUSAR; MOEDA $c, $e. (tem de ter um ponto no final);
+-> T=<o número deve ter 9 dígitos excepto se for iniciado por '0'>; ABORTAR
+ABORTAR
+maq: "saldo: 0e0c"
+maq: "Operação abortada! troco: 0e0c; Volte sempre!"
+
+FIM do programa
