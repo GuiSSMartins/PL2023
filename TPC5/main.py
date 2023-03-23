@@ -9,8 +9,6 @@ def main():
     print("\nTPC5 - Processamento de Linguagens - 2023")
     print("Guilherme Martins - a92847 - LEI\n")
 
-    print("ATENÇÃO: O programa só funciona para strings fornecidas válidas!\n")
-
     print("-| CABINE TELEFÓNICA |-\n")
     print("maq: Opções possíveis para escrever (ignorar os ;):")
     print("-> LEVANTAR; POUSAR; MOEDA $c, $e. (tem de ter um ponto no final);")
