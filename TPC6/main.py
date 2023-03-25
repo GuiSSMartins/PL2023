@@ -122,9 +122,9 @@ def t_program_PROGRAM_NAME(t):
     t.lexer.begin('INITIAL')
     return t
 
-t_WHILE = r'while(?=\s)'
-t_FOR = r'for(?=\s)'
-t_IN = r'in(?=\s)'
+t_WHILE = r'while'
+t_FOR = r'for'
+t_IN = r'in'
 
 # Operadores comuns
 
@@ -135,7 +135,7 @@ t_MAIOR = r'\>'
 t_MENOS = r'\-'
 
 # (?=\s)(?<=int)(?<=program)(?<=fucntion)(?<=in)
-t_VAR = r'[_a-z]\w*(?=\s)' # definição de variável
+# t_VAR = r'\w+(?=\s)' # definição de variável
 
 t_ANY_ignore = ' \t\n'
 
@@ -196,24 +196,27 @@ def main():
     print("\nTPC6 - Processamento de Linguagens - 2023")
     print("Guilherme Martins - a92847 - LEI\n")
 
-    print("-| Analisador Léxico para uma Linguagem de Programação |-\n")
-
-    print("Escolha o exemplo em que deseja aplicar o Analisador Léxico:")
-    print("1) Exemplo 1")
-    print("2) Exemplo 2")
-    print("0) SAIR")
-
     perguntar = 1
     while perguntar:
+
+        print("-| Analisador Léxico para uma Linguagem de Programação |-\n")
+
+        print("Escolha o exemplo em que deseja aplicar o Analisador Léxico:")
+        print("1) Exemplo 1")
+        print("2) Exemplo 2")
+        print("0) SAIR")
+
         opcao = int(input("\nEscreva a opção desejada: "))
 
         if opcao == 1: # Resultados dos tokens para o Exemplo 1
+            print()
             lexer.input(exemplo1)
             #lexer.variables = list() # lisat de variáveis + estado main atual
             while tok := lexer.token():
                 # pass
                 print(tok)
         elif opcao == 2: # Resultados dos tokens para o Exemplo 2
+            print()
             lexer.input(exemplo2)
             #lexer.variables = list() # lisat de variáveis + estado main atual
             while tok := lexer.token():
