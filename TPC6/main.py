@@ -1,59 +1,141 @@
 # TPC6: Analisador Léxico para uma Linguagem de Programação
 
-# Usando o `Ply` constrói um analisador léxico que 
-# devolve a lista de tokens para a linguagem de programação que se exemplifica a seguir.
-# (NOTA: exemplos inspirados na linguagem de programação C)
-"""
+# Usando o `Ply` constrói um analisador léxico que  devolve a lista de tokens para a linguagem de programação.
 
-"""
 
 import ply.lex as lex
 
 states = (
-    ('comment_multi_a', 'exclusive'), # a ler conteúdos de um comentário multi-linha
-    ('comment_multi_f', 'exclusive'), # terminou-se a leitura do  comentário multi-linha
-    ('function_a', 'exclusive'), # 
-    ('function_f', 'exclusive'), 
-    ('list_a', 'exclusive'), # estamos a definir uma nova lista
-    ('list_f', 'exclusive'),
+    # COMENTÁRIOS
+    ('comentario', 'exclusive'),
+    ('multicomentario', 'exclusive'), # apenas para lermos o conteúdo das linhas do comentário de maneira diferente
 
-    ('while_cond', 'exclusive'), # estamos a ver as condições do WHILE
-
+    # Para os nomes dos PROGRAM e FUNCTION
+    ('function', 'exclusive'),
+    ('program', 'exclusive')
     # num estado exclusivo, apenas aplicamos os tokens e regras para esse estado
-                           # por outro lado, num estado inclusivo, as regras e tokens desse estado juntam-se às outras regras e tokens
-                           # o estado inicial chama-se 'INITIAL' e não é preciso defini-lo
+    # por outro lado, num estado inclusivo, as regras e tokens desse estado juntam-se às outras regras e tokens
+    # o estado inicial chama-se 'INITIAL' e não é preciso defini-lo
 )
 
 tokens = (
-    'MULTI_COMENT' # /* (...)  */
-    'A_COMENT', # // (...)
-    'A_LIST', # \d+[
-    'LIST_CONTENT', # 
-    'F_LIST', # ]
-    'LIST_CONTENT', # \=\s{
-    'F_LIST_CONTENT', # }
-    'INTERVAL', # ..
+    'A_MULTI_COMENTARIO', 'F_MULTI_COMENTARIO', # /* */
+    'COMENTARIO', # //
+
+    # excluivos quando estamos dentro dos comentários
+    'TEXT_COMENTARIO', 'TEXT_MULTI_COMENTARIO',
+
+    # declaração de variáveis (normais OU globais)
     'INT', # int
-    'PROGRAM_NAME', # program \d+{
-    ''
+
+    # Listas
+    'A_DEF_LIST', 'F_DEF_LIST', # [ ],
+    'A_LIST', 'F_LIST', # { }
+    'INTERVAL_LIST', # ..
+
+    'PRINT', 'A_PARENTESES', 'F_PARENTESES', # ( )
+    'PROGRAM', # program
+    'PROGRAM_NAME', 'FUNCTION_NAME',
     'FUNCTION', # function
-    'EQUALS', # =
     'MULT', # *
     'MENOS', # -
     'MENOR', # <
-    'VAR_IGUALDADE', # ()
+    'MAIOR', # >
+    'IGUAL', # =
+    'NUM',
+    'VIRGULA', # ,
+    'PONTO_VIRGULA', # ;
 
+    'WHILE', 'FOR', 'IF', 'IN',
 
+    'VAR' # String de uma variável
 )
 
-def t_MULTI_COMMENT(t):
-    r'\/\*\w*\*\/'
+
+# TUDO sobre os comentários
+
+def t_A_MULTI_COMENTARIO(t):
+    r'\/\*'
+    t.lexer.begin('multicomentario')
     return t
 
-def t_ATAGF(t):
-    r'</'
+t_multicomentario_TEXT_MULTI_COMENTARIO = r'[\w\.\-\:\,\s\n]*(?=\*\/)'
+
+def t_multicomentario_F_MULTI_COMENTARIO(t):
+    r'\*/'
+    t.lexer.begin('INITIAL')
     return t
 
+def t_COMENTARIO(t):
+    r'\/\/'
+    t.lexer.begin('comentario')
+    return t
+
+def t_comentario_TEXT_COMENTARIO(t):
+    r'[\w\.\-\:\,\s\n]+(?=\n)'
+    t.lexer.begin('INITIAL')
+    return t
+
+# ---------------------------------------------------------------------
+
+t_INT = r'int(?=\s)'
+
+def t_NUM(t):
+    r'\d+'
+    t.value = int(t.value)
+    return 
+
+t_VIRGULA = r','
+t_PONTO_VIRGULA = r';'
+
+# Definiçaõ de uma lista {} : quando estamos a definir uma variável
+
+t_A_DEF_LIST = r'\['
+t_F_DEF_LIST = r'\]'
+t_A_LIST = r'\{'
+t_F_LIST = r'\}'
+t_INTERVAL_LIST = r'\.{2}'
+
+t_PRINT = r'print(?=\()'
+t_A_PARENTESES = r'\('
+t_F_PARENTESES = r'\)'
+
+# Dentro das funções e dos programas
+
+def t_FUNCTION(t):
+    r'function(?=\s)'
+    t.lexer.begin('function')
+    return t
+
+def t_PROGRAM(t):
+    r'program(?=\s)'
+    t.lexer.begin('program')
+    return t
+
+def t_function_FUNCTION_NAME(t):
+    r'\w+'
+    t.lexer.begin('INITIAL')
+    return t
+
+def t_program_PROGRAM_NAME(t):
+    r'\w+'
+    t.lexer.begin('INITIAL')
+    return t
+
+t_WHILE = r'while(?=\s)'
+t_FOR = r'for(?=\s)'
+t_IN = r'in(?=\s)'
+
+# Operadores comuns
+
+t_IGUAL = r'\='
+t_MULT = r'\*(?=[\s\w])'
+t_MENOR = r'\<'
+t_MAIOR = r'\>'
+t_MENOS = r'\-'
+
+# (?=\s)(?<=int)(?<=program)(?<=fucntion)(?<=in)
+t_VAR = r'[_a-z]\w*(?=\s)' # definição de variável
 
 t_ANY_ignore = ' \t\n'
 
@@ -61,8 +143,7 @@ def t_ANY_error(t):
     print(f"Caracter ilegal {t.value[0]}")
     t.lexer.skip(1)
 
-
-
+#-------------------------------------------------
 def main():
 
     lexer = lex.lex()
@@ -115,30 +196,32 @@ def main():
     print("\nTPC6 - Processamento de Linguagens - 2023")
     print("Guilherme Martins - a92847 - LEI\n")
 
-    print("-| CABINE TELEFÓNICA |-\n")
-    print("maq: Opções possíveis para escrever (ignorar os ;):")
-    print("-> LEVANTAR; POUSAR; MOEDA $c, $e. (tem de ter um ponto no final);")
-    print("-> T=<o número deve ter 9 dígitos excepto se for iniciado por '0'>; ABORTAR")
+    print("-| Analisador Léxico para uma Linguagem de Programação |-\n")
+
+    print("Escolha o exemplo em que deseja aplicar o Analisador Léxico:")
+    print("1) Exemplo 1")
+    print("2) Exemplo 2")
+    print("0) SAIR")
 
     perguntar = 1
     while perguntar:
-        opcao = input()
+        opcao = int(input("\nEscreva a opção desejada: "))
 
-    # Resultados dos tokens para o Exemplo 1
-
-    lexer.input(exemplo1)
-
-    while tok := lexer.token():
-        # pass
-        print(tok)
-
-    # Resultados dos tokens para o Exemplo 2
-
-    lexer.input(exemplo2)
-
-    while tok := lexer.token():
-        # pass
-        print(tok)
+        if opcao == 1: # Resultados dos tokens para o Exemplo 1
+            lexer.input(exemplo1)
+            #lexer.variables = list() # lisat de variáveis + estado main atual
+            while tok := lexer.token():
+                # pass
+                print(tok)
+        elif opcao == 2: # Resultados dos tokens para o Exemplo 2
+            lexer.input(exemplo2)
+            #lexer.variables = list() # lisat de variáveis + estado main atual
+            while tok := lexer.token():
+                # pass
+                print(tok)
+        elif opcao == 0: perguntar = 0
+        else: print("\nOpção Errada\n")
+    print("\nFIM do programa!\n")
 
 
 if __name__ == '__main__':
