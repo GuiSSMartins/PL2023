@@ -48,6 +48,7 @@ tokens = (
 
     'WHILE', 'FOR', 'IF', 'IN',
 
+    'VAR_ARRAY', # variável de um array
     'VAR' # String de uma variável
 )
 
@@ -134,8 +135,8 @@ t_MENOR = r'\<'
 t_MAIOR = r'\>'
 t_MENOS = r'\-'
 
-# (?=\s)(?<=int)(?<=program)(?<=fucntion)(?<=in)
-# t_VAR = r'\w+(?=\s)' # definição de variável
+t_VAR_ARRAY = r'\w+(?=\[)'
+t_VAR = r'\w+' # definição de variável
 
 t_ANY_ignore = ' \t\n'
 
@@ -194,12 +195,12 @@ def main():
     '''
 
     print("\nTPC6 - Processamento de Linguagens - 2023")
-    print("Guilherme Martins - a92847 - LEI\n")
+    print("Guilherme Martins - a92847 - LEI")
 
     perguntar = 1
     while perguntar:
 
-        print("-| Analisador Léxico para uma Linguagem de Programação |-\n")
+        print("\n-| Analisador Léxico para uma Linguagem de Programação |-\n")
 
         print("Escolha o exemplo em que deseja aplicar o Analisador Léxico:")
         print("1) Exemplo 1")
