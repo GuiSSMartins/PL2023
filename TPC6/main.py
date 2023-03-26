@@ -37,6 +37,7 @@ tokens = (
     'PROGRAM', # program
     'PROGRAM_NAME', 'FUNCTION_NAME',
     'FUNCTION', # function
+    'CALL_FUNCTION', # chama-se uma função já definida
     'MULT', # *
     'MENOS', # -
     'MENOR', # <
@@ -126,6 +127,8 @@ def t_program_PROGRAM_NAME(t):
 t_WHILE = r'while'
 t_FOR = r'for'
 t_IN = r'in'
+
+t_CALL_FUNCTION = r'\w+(?=\()'
 
 # Operadores comuns
 
